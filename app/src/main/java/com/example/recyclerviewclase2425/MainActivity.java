@@ -80,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Snackbar.make(recyclerView, "Deleted " + pais.getNombre(), Snackbar.LENGTH_LONG)
                                 .setAction("Undo", v -> {
                                     paises.add(position, pais);
-                                    recyclerView.getAdapter().not
                                     recyclerView.getAdapter().notifyItemInserted(position);
                                 }).show();
                     }
