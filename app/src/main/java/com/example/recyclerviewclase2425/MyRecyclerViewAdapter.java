@@ -19,9 +19,11 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     private List<Pais> paises;
     private Context context;
     private LayoutInflater inflater;
+    private View.OnClickListener onClickListener;
 
-    public MyRecyclerViewAdapter(Context context,List<Pais> paises) {
+    public MyRecyclerViewAdapter(Context context,List<Pais> paises,View.OnClickListener onClickListener) {
         this.context = context;
+        this.onClickListener = onClickListener;
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.paises=paises;
     }
@@ -30,8 +32,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = inflater.inflate(R.layout.view_holder_layout,parent,false);
-        view.setOnClickListener();
-
+        view.setOnClickListener(onClickListener);
         return new ViewHolder(view);
     }
 
@@ -41,6 +42,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         Pais pais = paises.get(position);
 
         holder.tvNombre.setText(pais.getNombre());
+        holder.setPais(pais);
 
         //Picasso.get().load(url).into(iv)
         Picasso.get().load(pais.getUrlBandera()).into(holder.ivBandera);
@@ -55,13 +57,25 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
         private ImageView ivBandera;
         private TextView tvNombre;
+        private Pais pais;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-
             ivBandera = itemView.findViewById(R.id.ivBandera);
             tvNombre = itemView.findViewById(R.id.tvNombre);
 
+        }
+
+        public void setPais(Pais pais) {
+            this.pais = pais;
+        }
+
+        public TextView getTvNombre() {
+            return tvNombre;
+        }
+
+        public Pais getPais() {
+            return pais;
         }
     }
 }
