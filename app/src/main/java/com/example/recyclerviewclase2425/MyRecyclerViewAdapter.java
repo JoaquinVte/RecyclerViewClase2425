@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder>{
@@ -36,6 +38,16 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         return new ViewHolder(view);
     }
 
+    public void addPaises(List<Pais> paises){
+        this.paises=paises;
+        notifyDataSetChanged();
+    }
+
+    public void sort(Comparator<Pais> comparator){
+        Collections.sort(paises,comparator);
+        notifyDataSetChanged();
+    }
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
@@ -45,7 +57,11 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         holder.setPais(pais);
 
         //Picasso.get().load(url).into(iv)
-        Picasso.get().load(pais.getUrlBandera()).into(holder.ivBandera);
+        Picasso.get()
+                .load(pais.getUrlBandera())
+                .error(context.getDrawable(R.drawable.ic_launcher_background))
+                .into(holder.ivBandera);
+
     }
 
     @Override

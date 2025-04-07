@@ -1,6 +1,8 @@
 package com.example.recyclerviewclase2425;
 
-public class Pais {
+import java.io.Serializable;
+
+public class Pais implements Serializable {
     private String nombre;
     private String urlBandera;
 

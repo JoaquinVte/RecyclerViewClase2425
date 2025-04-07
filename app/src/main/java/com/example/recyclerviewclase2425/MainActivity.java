@@ -1,11 +1,14 @@
 package com.example.recyclerviewclase2425;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -14,6 +17,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -22,6 +26,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private RecyclerView recyclerView;
+    private FloatingActionButton btnAdd;
     private List<Pais> paises;
 
     @Override
@@ -31,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         recyclerView = findViewById(R.id.rvEjemplo);
+        btnAdd = findViewById(R.id.btnAdd);
 
         paises = new ArrayList<>(List.of(
                 new Pais("Afganistan", "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Flag_of_the_Taliban.svg/360px-Flag_of_the_Taliban.svg.png"),
@@ -87,6 +93,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 });
         mIth.attachToRecyclerView(recyclerView);
 
+        ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if(result.getResultCode()==RESULT_OK){
+                        Pais p = (Pais)result.getData().getExtras().getSerializable("pais");
+                        paises.add(0, p);
+                        recyclerView.getAdapter().notifyItemInserted(0);
+                        Toast.makeText(MainActivity.this,"Pais recibido: " + p.getNombre(),Toast.LENGTH_LONG).show();
+                    }
+                }
+        );
+
+        btnAdd.setOnClickListener( v -> {
+            Intent intent = new Intent(MainActivity.this, PaisDetalleActivity.class);
+            activityResultLauncher.launch(intent);
+        });
+
+
     }
 
     @Override
@@ -95,7 +119,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int position = recyclerView.getChildAdapterPosition(v);
         Pais p = paises.get(position);
 
-        Toast.makeText(this, "Click " + p.getNombre(), Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(this,PaisDetalleActivity.class);
+        intent.putExtra("pais",p);
+        startActivity(intent);
+
+        //Toast.makeText(this, "Click " + p.getNombre(), Toast.LENGTH_LONG).show();
 
 //        MyRecyclerViewAdapter.ViewHolder vh = (MyRecyclerViewAdapter.ViewHolder) recyclerView.getChildViewHolder(v);
 //        Toast.makeText(this,"Click " + vh.getPais().getNombre(),Toast.LENGTH_LONG).show();
