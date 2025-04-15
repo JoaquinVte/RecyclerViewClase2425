@@ -49,5 +49,8 @@ dependencies {
     implementation("com.squareup.picasso:picasso:2.8")
     // Libreria para el manejo de imagenes
     implementation("com.android.volley:volley:1.2.1")
+    // Lombok
+    compileOnly("org.projectlombok:lombok:1.18.38")
+    annotationProcessor("org.projectlombok:lombok:1.18.38")
 
 }

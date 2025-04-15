@@ -33,30 +33,35 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private Pais pais;
     private int position;
 
-    private CallInterface<Pais> ELIMINAR_PAIS = new CallInterface<Pais>() {
+    private CallInterface<Pais> ELIMINAR_PAIS = new CallInterface<>() {
         @Override
         public Pais doInBackground() throws Exception {
-            return Connector.getConector().delete(Pais.class,"pais/"+pais.getNombre());
+            return Connector.getConector().delete(Pais.class, "pais/" + pais.getNombre());
         }
 
         @Override
         public void doInUI(Pais data) {
-            position = paises.indexOf(pais);
-            paises.remove(pais);
 
-            recyclerView.getAdapter().notifyItemRemoved(position);
+            if (data.equals(pais)) {
+                position = paises.indexOf(data);
+                paises.remove(pais);
+                recyclerView.getAdapter().notifyItemRemoved(position);
 
-            Snackbar.make(recyclerView, "Deleted " + pais.getNombre(), Snackbar.LENGTH_LONG)
-                    .setAction("Undo", v -> {
-                        executeCall(INSERTAR_PAIS);
-                    }).show();
+                Snackbar.make(recyclerView, "Deleted " + pais.getNombre(), Snackbar.LENGTH_LONG)
+                        .setAction("Undo", v -> {
+                            executeCall(INSERTAR_PAIS);
+                        }).show();
+            } else {
+                recyclerView.getAdapter().notifyItemChanged(position);
+            }
+
         }
     };
 
-    private CallInterface<Pais> INSERTAR_PAIS = new CallInterface<Pais>() {
+    private CallInterface<Pais> INSERTAR_PAIS = new CallInterface<>() {
         @Override
         public Pais doInBackground() throws Exception {
-            return Connector.getConector().post(Pais.class,pais,"pais");
+            return Connector.getConector().post(Pais.class, pais, "pais");
         }
 
         @Override
@@ -66,6 +71,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
         }
     };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,8 +101,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-
-
         // Acciones
 
         ItemTouchHelper mIth = new ItemTouchHelper(
@@ -110,13 +114,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
                     @Override
                     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-
                         pais = paises.get(viewHolder.getAdapterPosition());
-
-
                         executeCall(ELIMINAR_PAIS);
-
-
                     }
 
                 });

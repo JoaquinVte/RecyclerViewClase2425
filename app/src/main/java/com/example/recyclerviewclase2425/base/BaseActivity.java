@@ -19,7 +19,7 @@ public class BaseActivity extends AppCompatActivity {
 
     protected Connector connector;
     protected ExecutorService executor = Executors.newSingleThreadExecutor();
-    //protected Handler handler = new Handler(Looper.getMainLooper());
+    protected Handler handler = new Handler(Looper.getMainLooper());
     protected MyProgressBar progressBar;
     protected Context context;
 
@@ -33,43 +33,21 @@ public class BaseActivity extends AppCompatActivity {
 
     protected <T> void executeCall(CallInterface<T> callInterface){
         showProgress();
-        (new AsyncTask<Void,Void,T>(){
-            @Override
-            protected T doInBackground(Void... voids) {
-                try {
-                    return callInterface.doInBackground();
-                }catch (Exception e){
-                    callInterface.doInError(context,e);
-                }
-                return null;
+        executor.execute(() -> {
+            try {
+                T data = callInterface.doInBackground();
+                handler.post(() -> {
+                    hideProgress();
+                    callInterface.doInUI(data);
+                });
+            } catch (Exception e){
+                handler.post(() -> {
+                    hideProgress();
+                    callInterface.doInError(BaseActivity.this,e);
+                });
             }
-
-            @Override
-            protected void onPostExecute(T t) {
-                hideProgress();
-                if(t!=null)
-                    callInterface.doInUI(t);
-            }
-        }).execute();
+        });
     }
-
-//    protected <T> void executeCall(CallInterface<T> callInterface){
-//        executor.execute(() -> {
-//            try {
-//                showProgress();
-//                T data = callInterface.doInBackground();
-//                this.runOnUiThread(() -> {
-//                    hideProgress();
-//                    callInterface.doInUI(data);
-//                });
-//            } catch (Exception e){
-//                this.runOnUiThread(() -> {
-//                    hideProgress();
-//                    callInterface.doInError(BaseActivity.this,e);
-//                });
-//            }
-//        });
-//    }
 
     public void showProgress(){
         progressBar.show();
