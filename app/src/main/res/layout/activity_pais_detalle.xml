@@ -22,13 +22,13 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/etPoblacion"
+        android:id="@+id/etIdioma"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:ems="10"
         android:hint="Poblacion"
-        android:inputType="number"
+        android:inputType="text"
         app:layout_constraintEnd_toEndOf="@+id/etNombre"
         app:layout_constraintStart_toStartOf="@+id/etNombre"
         app:layout_constraintTop_toBottomOf="@+id/etNombre" />

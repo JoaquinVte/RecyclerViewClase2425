@@ -9,16 +9,16 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
-public class PaisDetalleActivity extends AppCompatActivity implements View.OnClickListener {
+import com.example.recyclerviewclase2425.API.Connector;
+import com.example.recyclerviewclase2425.base.BaseActivity;
+import com.example.recyclerviewclase2425.base.CallInterface;
+
+public class PaisDetalleActivity extends BaseActivity  {
 
     private EditText etUrl;
     private EditText etNombre;
-    private EditText etPoblacion;
+    private EditText etIdioma;
     private Button btnSave;
     private Button btnCancel;
 
@@ -34,11 +34,31 @@ public class PaisDetalleActivity extends AppCompatActivity implements View.OnCli
 
         etUrl = findViewById(R.id.etUrl);
         etNombre = findViewById(R.id.etNombre);
-        etPoblacion=findViewById(R.id.etPoblacion);
+        etIdioma =findViewById(R.id.etIdioma);
         btnCancel = findViewById(R.id.btnCancel);
         btnSave=findViewById(R.id.btnSave);
 
-        btnSave.setOnClickListener(this);
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                executeCall(new CallInterface<Pais>(){
+                    @Override
+                    public Pais doInBackground() throws Exception {
+                        Pais p = new Pais(etNombre.getText().toString(),etUrl.getText().toString(),etIdioma.getText().toString());
+                        return Connector.getConector().post(Pais.class,p,"pais");
+                    }
+
+                    @Override
+                    public void doInUI(Pais data) {
+                        Intent intent = new Intent();
+                        intent.putExtra("pais",data);
+                        setResult(RESULT_OK,intent);
+                        finish();
+                    }
+                });
+
+            }
+        });
         btnCancel.setOnClickListener(v -> {
             Intent intent = new Intent();
             setResult(RESULT_CANCELED,intent);
@@ -52,20 +72,16 @@ public class PaisDetalleActivity extends AppCompatActivity implements View.OnCli
             // Disable editText
             etUrl.setEnabled(false);
             etNombre.setEnabled(false);
-            etPoblacion.setEnabled(false);
+            etIdioma.setEnabled(false);
 
-            etUrl.setText(p.getUrlBandera());
+            etUrl.setText(p.getUrl());
             etNombre.setText(p.getNombre());
         }
 
     }
 
-    @Override
-    public void onClick(View v) {
-        Pais p = new Pais(etNombre.getText().toString(),"https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Flag_of_Cuba.svg/500px-Flag_of_Cuba.svg.png");
-        Intent intent = new Intent();
-        intent.putExtra("pais",p);
-        setResult(RESULT_OK,intent);
-        finish();
-    }
+
+
+
+
 }

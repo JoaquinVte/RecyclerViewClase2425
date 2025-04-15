@@ -58,7 +58,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
         //Picasso.get().load(url).into(iv)
         Picasso.get()
-                .load(pais.getUrlBandera())
+                .load(pais.getUrl())
                 .error(context.getDrawable(R.drawable.ic_launcher_background))
                 .into(holder.ivBandera);
 

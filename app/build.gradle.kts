@@ -40,5 +40,14 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation("com.squareup.picasso:picasso:2.71828")
+
+    // Libreria para la manipulacion de json
+    implementation("com.google.code.gson:gson:2.11.0")
+    // Libreria para las llamadas a la API
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    // Libreria para el manejo de imagenes
+    implementation("com.squareup.picasso:picasso:2.8")
+    // Libreria para el manejo de imagenes
+    implementation("com.android.volley:volley:1.2.1")
+
 }

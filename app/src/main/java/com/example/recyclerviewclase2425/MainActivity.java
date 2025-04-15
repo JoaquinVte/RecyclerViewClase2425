@@ -2,33 +2,70 @@ package com.example.recyclerviewclase2425;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.recyclerviewclase2425.API.Connector;
+import com.example.recyclerviewclase2425.base.BaseActivity;
+import com.example.recyclerviewclase2425.base.CallInterface;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends BaseActivity implements View.OnClickListener, CallInterface<List<Pais>> {
 
     private RecyclerView recyclerView;
     private FloatingActionButton btnAdd;
     private List<Pais> paises;
 
+    private Pais pais;
+    private int position;
+
+    private CallInterface<Pais> ELIMINAR_PAIS = new CallInterface<Pais>() {
+        @Override
+        public Pais doInBackground() throws Exception {
+            return Connector.getConector().delete(Pais.class,"pais/"+pais.getNombre());
+        }
+
+        @Override
+        public void doInUI(Pais data) {
+            position = paises.indexOf(pais);
+            paises.remove(pais);
+
+            recyclerView.getAdapter().notifyItemRemoved(position);
+
+            Snackbar.make(recyclerView, "Deleted " + pais.getNombre(), Snackbar.LENGTH_LONG)
+                    .setAction("Undo", v -> {
+                        executeCall(INSERTAR_PAIS);
+                    }).show();
+        }
+    };
+
+    private CallInterface<Pais> INSERTAR_PAIS = new CallInterface<Pais>() {
+        @Override
+        public Pais doInBackground() throws Exception {
+            return Connector.getConector().post(Pais.class,pais,"pais");
+        }
+
+        @Override
+        public void doInUI(Pais data) {
+            paises.add(position, pais);
+            recyclerView.getAdapter().notifyItemInserted(position);
+
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,27 +75,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         recyclerView = findViewById(R.id.rvEjemplo);
         btnAdd = findViewById(R.id.btnAdd);
 
-        paises = new ArrayList<>(List.of(
-                new Pais("Afganistan", "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Flag_of_the_Taliban.svg/360px-Flag_of_the_Taliban.svg.png"),
-                new Pais("Albania", "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Flag_of_Albania.svg/252px-Flag_of_Albania.svg.png"),
-                new Pais("Alemania", "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Flag_of_Germany.svg/300px-Flag_of_Germany.svg.png"),
-                new Pais("Andorra", "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Flag_of_Andorra.svg/257px-Flag_of_Andorra.svg.png"),
-                new Pais("Angola", "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Flag_of_Angola.svg/270px-Flag_of_Angola.svg.png"),
-                new Pais("Argelia", "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Flag_of_Algeria.svg/270px-Flag_of_Algeria.svg.png"),
-                new Pais("Argentina", "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Flag_of_Argentina.svg/288px-Flag_of_Argentina.svg.png"),
-                new Pais("Armenia", "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Flag_of_Armenia.svg/360px-Flag_of_Armenia.svg.png"),
-                new Pais("Bahamas", "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Flag_of_the_Bahamas.svg/360px-Flag_of_the_Bahamas.svg.png"),
-                new Pais("Belice", "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Flag_of_Belize.svg/300px-Flag_of_Belize.svg.png"),
-                new Pais("Bolivia", "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Flag_of_Bolivia.svg/264px-Flag_of_Bolivia.svg.png"),
-                new Pais("España", "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Flag_of_Spain.svg/270px-Flag_of_Spain.svg.png"),
-                new Pais("EEUU", "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Flag_of_the_United_States.svg/342px-Flag_of_the_United_States.svg.png"),
-                new Pais("Finlandia", "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Flag_of_Finland.svg/295px-Flag_of_Finland.svg.png"),
-                new Pais("Francia", "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Flag_of_France.svg/270px-Flag_of_France.svg.png")
-        ));
+//        paises = new ArrayList<>(List.of(
+//                new Pais("Afganistan", "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Flag_of_the_Taliban.svg/360px-Flag_of_the_Taliban.svg.png"),
+//                new Pais("Albania", "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Flag_of_Albania.svg/252px-Flag_of_Albania.svg.png"),
+//                new Pais("Alemania", "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Flag_of_Germany.svg/300px-Flag_of_Germany.svg.png"),
+//                new Pais("Andorra", "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Flag_of_Andorra.svg/257px-Flag_of_Andorra.svg.png"),
+//                new Pais("Angola", "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Flag_of_Angola.svg/270px-Flag_of_Angola.svg.png"),
+//                new Pais("Argelia", "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Flag_of_Algeria.svg/270px-Flag_of_Algeria.svg.png"),
+//                new Pais("Argentina", "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Flag_of_Argentina.svg/288px-Flag_of_Argentina.svg.png"),
+//                new Pais("Armenia", "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Flag_of_Armenia.svg/360px-Flag_of_Armenia.svg.png"),
+//                new Pais("Bahamas", "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Flag_of_the_Bahamas.svg/360px-Flag_of_the_Bahamas.svg.png"),
+//                new Pais("Belice", "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Flag_of_Belize.svg/300px-Flag_of_Belize.svg.png"),
+//                new Pais("Bolivia", "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Flag_of_Bolivia.svg/264px-Flag_of_Bolivia.svg.png"),
+//                new Pais("España", "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Flag_of_Spain.svg/270px-Flag_of_Spain.svg.png"),
+//                new Pais("EEUU", "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Flag_of_the_United_States.svg/342px-Flag_of_the_United_States.svg.png"),
+//                new Pais("Finlandia", "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Flag_of_Finland.svg/295px-Flag_of_Finland.svg.png"),
+//                new Pais("Francia", "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Flag_of_France.svg/270px-Flag_of_France.svg.png")
+//        ));
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        recyclerView.setAdapter(new MyRecyclerViewAdapter(this, paises, this));
 
 
         // Acciones
@@ -75,19 +111,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
 
-                        Pais pais = paises.get(viewHolder.getAdapterPosition());
+                        pais = paises.get(viewHolder.getAdapterPosition());
 
-                        int position = viewHolder.getAdapterPosition();
 
-                        paises.remove(position);
+                        executeCall(ELIMINAR_PAIS);
 
-                        recyclerView.getAdapter().notifyItemRemoved(position);
 
-                        Snackbar.make(recyclerView, "Deleted " + pais.getNombre(), Snackbar.LENGTH_LONG)
-                                .setAction("Undo", v -> {
-                                    paises.add(position, pais);
-                                    recyclerView.getAdapter().notifyItemInserted(position);
-                                }).show();
                     }
 
                 });
@@ -100,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Pais p = (Pais)result.getData().getExtras().getSerializable("pais");
                         paises.add(0, p);
                         recyclerView.getAdapter().notifyItemInserted(0);
-                        Toast.makeText(MainActivity.this,"Pais recibido: " + p.getNombre(),Toast.LENGTH_LONG).show();
+                        //Toast.makeText(MainActivity.this,"Pais recibido: " + p.getNombre(),Toast.LENGTH_LONG).show();
                     }
                 }
         );
@@ -111,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
 
+        executeCall(this);
     }
 
     @Override
@@ -127,5 +157,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 //        MyRecyclerViewAdapter.ViewHolder vh = (MyRecyclerViewAdapter.ViewHolder) recyclerView.getChildViewHolder(v);
 //        Toast.makeText(this,"Click " + vh.getPais().getNombre(),Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public List<Pais> doInBackground() throws Exception {
+        return Connector.getConector().getAsList(Pais.class,"pais");
+    }
+
+    @Override
+    public void doInUI(List<Pais> data) {
+        paises=data;
+        recyclerView.setAdapter(new MyRecyclerViewAdapter(this, paises, this));
+
     }
 }
